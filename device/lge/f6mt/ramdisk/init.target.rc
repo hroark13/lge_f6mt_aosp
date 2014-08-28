@@ -28,6 +28,23 @@
 #
 
 on early-init
+
+#### hroark mod press home key to boot into recovery 1
+    mkdir /tmp
+    mount tmpfs tmpfs /tmp
+    chmod 1777 /tmp
+    chown root root /sbin/rr1.sh
+    chmod 0777 /sbin/rr1.sh
+    chown root root /sbin/recovery
+    chmod 0777 /sbin/recovery
+    symlink /sbin/recovery /sbin/busybox
+    symlink /sbin/recovery /sbin/reboot
+    symlink /sbin/recovery /sbin/setprop
+    symlink /sbin/busybox /sbin/sh
+
+#### end hroark mod press home key to boot into recovery 1
+
+
     mkdir /firmware 0771 system system
     symlink /data/tombstones /tombstones
     mount debugfs debugfs /sys/kernel/debug
@@ -89,7 +106,20 @@ on fs_selinux
     wait /dev/block/platform/msm_sdcc.1/by-name/modem
     mount vfat /dev/block/platform/msm_sdcc.1/by-name/modem /firmware ro shortname=lower dmask=0006 fmask=0006 umask=0006,gid=1000,context=u:object_r:firmware:s0
 
-on boot 
+#### hroark mod press home key to boot into recovery 2
+service rr1 /sbin/sh /sbin/rr1.sh
+   user root
+   group root
+   oneshot
+   disabled
+#### end hroark mod press home key to boot into recovery 2
+
+on boot
+
+#### hroark mod press home key to boot into recovery 3
+    start rr1
+#### end hroark mod press home key to boot into recovery 3
+ 
 ## DM_CHANGE CLEANUP RAMDISK ##
     exec system/bin/btnvtool -O
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
@@ -676,4 +706,14 @@ on property:persist.service.ther.enable=false
 	start thermal_disable
 
 on property:persist.service.usb_ther=true
-on property:persist.service.usb_ther=false  
+on property:persist.service.usb_ther=false 
+
+
+#### hroark mod press home key to boot into recovery 4
+service rr2 /sbin/reboot recovery
+   oneshot
+   disabled
+
+on property:ro.r.r=1
+    start rr2
+#### end hroark mod press home key to boot into recovery 4 
