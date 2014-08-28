@@ -613,8 +613,6 @@ static struct msm_camera_i2c_reg_conf ov5693_snap_settings[] = {
 #endif
 };
 
-/*                                                                                               */
-#if 0
 static struct msm_camera_i2c_reg_conf ov5693_prev_settings[] = {
 // OV5693_Key_1280x960_30FPS_2lane
 #if 0 // from QCT Reference driver
@@ -675,15 +673,11 @@ static struct msm_camera_i2c_reg_conf ov5693_prev_settings[] = {
 	{0x4004, 0x08},
 #endif
 };
-#endif
-/*                                                                                               */
 
 static struct msm_camera_i2c_reg_conf ov5693_video_settings[] = {
 #if 0 // from QCT Reference driver
 // Video register set was not included in QCT Reference driver
 #else
-/*                                                                                               */
-#if 0
 // OV5693_Key_1936x1088_30fps_2lane
 	{0x3708, 0xe2},
 
@@ -713,39 +707,7 @@ static struct msm_camera_i2c_reg_conf ov5693_video_settings[] = {
 	{0x3821, 0x18}, //0x1e Flip and Mirror
 
 	{0x4004, 0x08},
-#else
-// OV5693_Key_2560x1440_30fps_2lane
-	{0x3708, 0xe2},
-
-	{0x3800, 0x00},
-	{0x3801, 0x10},
-	{0x3802, 0x00},
-	{0x3803, 0xFe},
-	{0x3804, 0x0a},
-	{0x3805, 0x2f},
-	{0x3806, 0x06},
-	{0x3807, 0xa5},
-	{0x3808, 0x0a},
-	{0x3809, 0x00},
-	{0x380a, 0x05},
-	{0x380b, 0xa0},
-	{0x380c, 0x0a},
-	{0x380d, 0x80},
-	{0x380e, 0x07},
-	{0x380f, 0xc0},
-	{0x3810, 0x00},
-	{0x3811, 0x10},
-	{0x3812, 0x00},
-	{0x3813, 0x04},
-	{0x3814, 0x11},
-	{0x3815, 0x11},
-	{0x3820, 0x42}, //0x00 Flip and Mirror
-	{0x3821, 0x18}, //0x1e Flip and Mirror
-
-	{0x4004, 0x08},
 #endif
-/*                                                                                               */
-	#endif
 };
 
 static struct msm_camera_i2c_conf_array ov5693_init_conf[] = {
@@ -756,15 +718,8 @@ static struct msm_camera_i2c_conf_array ov5693_init_conf[] = {
 static struct msm_camera_i2c_conf_array ov5693_confs[] = {
 	{&ov5693_snap_settings[0],
 	ARRAY_SIZE(ov5693_snap_settings), 0, MSM_CAMERA_I2C_BYTE_DATA},
-/*                                                                                               */
-#if 0
 	{&ov5693_prev_settings[0],
 	ARRAY_SIZE(ov5693_prev_settings), 0, MSM_CAMERA_I2C_BYTE_DATA},
-#else
-	{&ov5693_snap_settings[0],
-	ARRAY_SIZE(ov5693_snap_settings), 0, MSM_CAMERA_I2C_BYTE_DATA},
-#endif	
-/*                                                                                               */
 	{&ov5693_video_settings[0],
 	ARRAY_SIZE(ov5693_video_settings), 0, MSM_CAMERA_I2C_BYTE_DATA},
 };
@@ -788,12 +743,10 @@ static struct msm_sensor_output_info_t ov5693_dimensions[] = {
 		.line_length_pclk = 0xDE0,	   /* 3552 */
 		.frame_length_lines = 0x5DC,   /* 1500 */
 		.vt_pixel_clk = 160000000,
-		.op_pixel_clk = 320000000,
+		.op_pixel_clk = 160000000,
 		.binning_factor = 0x1,
 	},
 #else
-/*                                                                                               */
-#if 0	
 	/* preview : 1280 * 960 */
 	{
 		.x_output = 0x500,             /* 1280 */
@@ -804,22 +757,7 @@ static struct msm_sensor_output_info_t ov5693_dimensions[] = {
 		.op_pixel_clk = 160000000,
 		.binning_factor = 0x1,
 	},
-#else
-	/* preview : 2592*1944 */
-	{
-		.x_output = 0xA20,             /* 2592 */
-		.y_output = 0x798,             /* 1944 */
-		.line_length_pclk = 0xA80,     /* 2688 */
-		.frame_length_lines = 0x7C0,   /* 1984 */
-		.vt_pixel_clk = 160000000,
-		.op_pixel_clk = 160000000,
-		.binning_factor = 0x1,
-	},
 #endif
-/*                                                                                               */
-#endif
-/*                                                                                               */
-#if 0
 	/* FHD video : 1920 * 1088 */
 	{
 		.x_output = 0x780,             /* 1920 */
@@ -830,19 +768,6 @@ static struct msm_sensor_output_info_t ov5693_dimensions[] = {
 		.op_pixel_clk = 160000000,
 		.binning_factor = 0x1,
 	},
-#else
-	/* FHD video : 2560 * 1440 */
-	{
-		.x_output = 0xA00,             /* 2560 */
-		.y_output = 0x5A0,             /* 1440 */
-		.line_length_pclk = 0xA80,     /* 2592 */
-		.frame_length_lines = 0x7C0,   /* 1458 */
-		.vt_pixel_clk = 160000000,
-		.op_pixel_clk = 160000000,
-		.binning_factor = 0x1,
-	},
-#endif
-/*                                                                                               */
 };
 
 static struct msm_camera_i2c_client ov5693_sensor_i2c_client = {
@@ -892,7 +817,7 @@ static struct msm_sensor_exp_gain_info_t ov5693_exp_gain_info = {
 };
 
 static int32_t ov5693_write_exp_gain(struct msm_sensor_ctrl_t *s_ctrl,
-		uint16_t gain, uint32_t line, int32_t x, uint16_t y)
+		uint16_t gain, uint32_t line)
 {
 	uint32_t fl_lines, offset;
 	uint8_t int_time[3];
@@ -999,12 +924,13 @@ int32_t ov5693_sensor_setting(struct msm_sensor_ctrl_t *s_ctrl,
 
 	if (update_type == MSM_SENSOR_REG_INIT) {
 		s_ctrl->func_tbl->sensor_stop_stream(s_ctrl);
-		// Software reset
+// jrchoi start adding
+// Software reset
 		msm_camera_i2c_write(
 				s_ctrl->sensor_i2c_client,
 				0x103, 0x1,
 				MSM_CAMERA_I2C_BYTE_DATA);
-
+// jrchoi end adding
 		msm_sensor_write_init_settings(s_ctrl);
 
 		msm_camera_i2c_write(s_ctrl->sensor_i2c_client, 0x100, 0x1,

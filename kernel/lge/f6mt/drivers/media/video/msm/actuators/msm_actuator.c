@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2012, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -14,40 +14,34 @@
 #include "msm_actuator.h"
 
 
-/* LGE_CHANGE_S, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
-#ifdef CONFIG_S5K4E5YA_EEPROM
+/*                                                                          */
+/*                                                                                     */
+#if defined (CONFIG_S5K4E5YA_EEPROM) || defined (CONFIG_OV5693_EEPROM)
+#if defined (CONFIG_S5K4E5YA_EEPROM)
 extern uint8_t s5k4e5ya_afcalib_data[4];
+#endif
+#if defined (CONFIG_OV5693_EEPROM)
+extern uint8_t ov5693_afcalib_data[4];
+#endif
+/*                                                                                     */
 #define SUPPORT_AF_CALIBRATION
-#define ACTUATOR_MARGIN 30
-/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-#define MANUAL_ACT_MARGIN   30
-/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
+#define ACTUATOR_MARGIN 30 
 #define ACTUATOR_MIN_MOVE_RANGE 0
 #define ACTUATOR_MAX_MOVE_RANGE 1023
 #define ACTUATOR_MIN_FOCUS_RANGE 150
-#define ACTUATOR_MIN_INFINIT_RANGE 100	/* LGE_CHANGE_E, change calibration range from 120~270 to 100~300 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
-#define ACTUATOR_MAX_INFINIT_RANGE 300	/* LGE_CHANGE_E, change calibration range from 120~270 to 100~300 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
-#define ACTUATOR_MIN_MACRO_RANGE 370	/* LGE_CHANGE_E, change calibration range from 420~600 to 370~700 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
-#define ACTUATOR_MAX_MACRO_RANGE 700	/* LGE_CHANGE_E, change calibration range from 420~600 to 370~700 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
+#define ACTUATOR_MIN_INFINIT_RANGE 100	/*                                                                                                                        */
+#define ACTUATOR_MAX_INFINIT_RANGE 300	/*                                                                                                                        */
+#define ACTUATOR_MIN_MACRO_RANGE 370	/*                                                                                                                        */
+#define ACTUATOR_MAX_MACRO_RANGE 700	/*                                                                                                                        */
 #endif
-/* LGE_CHANGE_E, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
+/*                                                                          */
 
-/* LGE_CHANGE_S L9II Camera Actuator bringup 2013-03-21 jinsang.yun@lge.com */
+/*                                                                          */
 #if defined(CONFIG_IMX111)
-#define ACTUATOR_MARGIN				50
-/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-#define MANUAL_ACT_MARGIN   0
-/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
+#define ACTUATOR_MARGIN				100
 #define ACTUATOR_MIN_FOCUS_RANGE	200
-#define SUPPORT_AF_CALIBRATION
-#define ACTUATOR_MIN_MOVE_RANGE 0
-#define ACTUATOR_MAX_MOVE_RANGE 1023
-#define ACTUATOR_MIN_INFINIT_RANGE 100	/* LGE_CHANGE_E, change calibration range from 120~270 to 100~300 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
-#define ACTUATOR_MAX_INFINIT_RANGE 300	/* LGE_CHANGE_E, change calibration range from 120~270 to 100~300 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
-#define ACTUATOR_MIN_MACRO_RANGE 370	/* LGE_CHANGE_E, change calibration range from 420~600 to 370~700 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
-#define ACTUATOR_MAX_MACRO_RANGE 700	/* LGE_CHANGE_E, change calibration range from 420~600 to 370~700 for INFINITY by LGIT, 2013-02-16, donghyun.kwon@lge.com */
 #endif
-/* LGE_CHANGE_E L9II Camera Actuator bringup 2013-03-21 jinsang.yun@lge.com */
+/*                                                                          */
 
 static struct msm_actuator_ctrl_t msm_actuator_t;
 static struct msm_actuator msm_vcm_actuator_table;
@@ -66,8 +60,6 @@ static int32_t msm_actuator_piezo_set_default_focus(
 
 	if (a_ctrl->curr_step_pos != 0) {
 		a_ctrl->i2c_tbl_index = 0;
-		rc = a_ctrl->func_tbl->actuator_parse_i2c_params(a_ctrl,
-			a_ctrl->initial_code, 0, 0);
 		rc = a_ctrl->func_tbl->actuator_parse_i2c_params(a_ctrl,
 			a_ctrl->initial_code, 0, 0);
 		rc = msm_camera_i2c_write_table_w_microdelay(
@@ -94,26 +86,18 @@ static int32_t msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 	uint32_t size = a_ctrl->reg_tbl_size, i = 0;
 	int32_t rc = 0;
 	struct msm_camera_i2c_reg_tbl *i2c_tbl = a_ctrl->i2c_reg_tbl;
+	uint8_t hw_reg_write = 1;
 	CDBG("%s: IN\n", __func__);
+	if (a_ctrl->curr_hwparams == hw_params)
+		hw_reg_write = 0;
 	for (i = 0; i < size; i++) {
-#if 1
-/* LGE_CHANGE
- * [Code migration from JB source]
- * Add error check log for mem overflow when actuator moving, it is caused by damping steps
- * 2013-12-06, jinw.kim@lge.com
- */
+		/*                                                                                                                                           */
 		if(a_ctrl->i2c_tbl_index > ((a_ctrl->total_steps*2)+1)) {
-			printk("[ERR] %s, i2c_tbl_index is too big, i2c_tbl_index %d, total_steps %d \n", __func__,a_ctrl->i2c_tbl_index, a_ctrl->total_steps);
+			printk("[ERR] %s, i2c_tbl_index is large than alloced size of i2c_tbl_index\n", __func__);
 			break;
 		}
-		/* LGE_CHANGE_E, add error check log for mem overflow when actuator moving, it is caused by damping steps, 2013-07-11, donghyun.kwon@lge.com */
-#else //QMC original
-		/* check that the index into i2c_tbl cannot grow larger that
-		the allocated size of i2c_tbl */
-		if ((a_ctrl->total_steps + 1) < (a_ctrl->i2c_tbl_index)) {
-			break;
-		}
-#endif
+		/*                                                                                                                                           */
+
 		if (write_arr[i].reg_write_type == MSM_ACTUATOR_WRITE_DAC) {
 			value = (next_lens_position <<
 				write_arr[i].data_shift) |
@@ -142,19 +126,29 @@ static int32_t msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 				i2c_byte1 = (value & 0xFF00) >> 8;
 				i2c_byte2 = value & 0xFF;
 			}
+			CDBG("%s: i2c_byte1:0x%x, i2c_byte2:0x%x\n", __func__,
+				i2c_byte1, i2c_byte2);
+			i2c_tbl[a_ctrl->i2c_tbl_index].reg_addr = i2c_byte1;
+			i2c_tbl[a_ctrl->i2c_tbl_index].reg_data = i2c_byte2;
+			i2c_tbl[a_ctrl->i2c_tbl_index].delay = delay;
+			a_ctrl->i2c_tbl_index++;
 		} else {
-			i2c_byte1 = write_arr[i].reg_addr;
-			i2c_byte2 = (hw_dword & write_arr[i].hw_mask) >>
-				write_arr[i].hw_shift;
+			if (hw_reg_write) {
+				i2c_byte1 = write_arr[i].reg_addr;
+				i2c_byte2 = (hw_dword & write_arr[i].hw_mask) >>
+					write_arr[i].hw_shift;
+				CDBG("%s: i2c_byte1:0x%x, i2c_byte2:0x%x\n", __func__,
+					i2c_byte1, i2c_byte2);
+				i2c_tbl[a_ctrl->i2c_tbl_index].reg_addr = i2c_byte1;
+				i2c_tbl[a_ctrl->i2c_tbl_index].reg_data = i2c_byte2;
+				i2c_tbl[a_ctrl->i2c_tbl_index].delay = delay;
+				a_ctrl->i2c_tbl_index++;
+			}
 		}
-		CDBG("%s: i2c_byte1:0x%x, i2c_byte2:0x%x\n", __func__,
-			i2c_byte1, i2c_byte2);
-		i2c_tbl[a_ctrl->i2c_tbl_index].reg_addr = i2c_byte1;
-		i2c_tbl[a_ctrl->i2c_tbl_index].reg_data = i2c_byte2;
-		i2c_tbl[a_ctrl->i2c_tbl_index].delay = delay;
-		a_ctrl->i2c_tbl_index++;
 	}
-		CDBG("%s: OUT\n", __func__);
+	CDBG("%s: OUT\n", __func__);
+	if (rc == 0)
+		a_ctrl->curr_hwparams = hw_params;
 	return rc;
 }
 
@@ -241,16 +235,8 @@ static int32_t msm_actuator_piezo_move_focus(
 	struct msm_actuator_move_params_t *move_params)
 {
 	int32_t dest_step_position = move_params->dest_step_pos;
-	struct damping_params_t ringing_params_kernel;
 	int32_t rc = 0;
 	int32_t num_steps = move_params->num_steps;
-
-	if (copy_from_user(&ringing_params_kernel,
-		&(move_params->ringing_params[0]),
-		sizeof(struct damping_params_t))) {
-			pr_err("copy_from_user failed\n");
-			return -EFAULT;
-	}
 
 	if (num_steps == 0)
 		return rc;
@@ -260,7 +246,7 @@ static int32_t msm_actuator_piezo_move_focus(
 		actuator_parse_i2c_params(a_ctrl,
 		(num_steps *
 		a_ctrl->region_params[0].code_per_step),
-		ringing_params_kernel.hw_params, 0);
+		move_params->ringing_params[0].hw_params, 0);
 
 	rc = msm_camera_i2c_write_table_w_microdelay(&a_ctrl->i2c_client,
 		a_ctrl->i2c_reg_tbl, a_ctrl->i2c_tbl_index,
@@ -288,14 +274,6 @@ static int32_t msm_actuator_move_focus(
 	uint16_t curr_lens_pos = 0;
 	int dir = move_params->dir;
 	int32_t num_steps = move_params->num_steps;
-	struct damping_params_t ringing_params_kernel;
-
-	if (copy_from_user(&ringing_params_kernel,
-		&(move_params->ringing_params[a_ctrl->curr_region_index]),
-		sizeof(struct damping_params_t))) {
-			pr_err("copy_from_user failed\n");
-			return -EFAULT;
-	}
 
 	CDBG("%s called, dir %d, num_steps %d\n",
 		__func__,
@@ -304,27 +282,7 @@ static int32_t msm_actuator_move_focus(
 
 	if (dest_step_pos == a_ctrl->curr_step_pos)
 		return rc;
-	if ((sign_dir > MSM_ACTUATOR_MOVE_SIGNED_NEAR) ||
-		(sign_dir < MSM_ACTUATOR_MOVE_SIGNED_FAR)) {
-		pr_err("%s:%d Invalid sign_dir = %d\n",
-		__func__, __LINE__, sign_dir);
-		return -EFAULT;
-	}
-	if ((dir > MOVE_FAR) || (dir < MOVE_NEAR)) {
-		pr_err("%s:%d Invalid direction = %d\n",
-		 __func__, __LINE__, dir);
-		return -EFAULT;
-	}
-	if (dest_step_pos > a_ctrl->total_steps) {
-		pr_err("Step pos greater than total steps = %d\n",
-		dest_step_pos);
-		return -EFAULT;
-	}
-	if (a_ctrl->curr_step_pos > a_ctrl->total_steps) {
-		pr_err("Step pos greater than total steps = %d\n",
-		a_ctrl->curr_step_pos);
-		return -EFAULT;
-	}
+
 	curr_lens_pos = a_ctrl->step_position_table[a_ctrl->curr_step_pos];
 	a_ctrl->i2c_tbl_index = 0;
 	CDBG("curr_step_pos =%d dest_step_pos =%d curr_lens_pos=%d\n",
@@ -337,31 +295,16 @@ static int32_t msm_actuator_move_focus(
 		if ((dest_step_pos * sign_dir) <=
 			(step_boundary * sign_dir)) {
 
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			struct damping_params_t damping_param, *usr_damping_param ; // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			target_step_pos = dest_step_pos;
 			target_lens_pos =
 				a_ctrl->step_position_table[target_step_pos];
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			usr_damping_param = &(move_params->ringing_params[a_ctrl->curr_region_index]) ;
-			if (copy_from_user(&damping_param,
-					(void *)usr_damping_param,
-					sizeof(struct damping_params_t)))
-			{
-				pr_err("%s: ringing_param is on FAULT Address : %p\n",
-						__func__, (void *)usr_damping_param ) ;
-				return -EFAULT;
-			}
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			rc = a_ctrl->func_tbl->
 				actuator_write_focus(
 					a_ctrl,
 					curr_lens_pos,
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-					//&ringing_params_kernel,
-					&damping_param, // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
+					&(move_params->
+						ringing_params[a_ctrl->
+						curr_region_index]),
 					sign_dir,
 					target_lens_pos);
 			if (rc < 0) {
@@ -372,31 +315,16 @@ static int32_t msm_actuator_move_focus(
 			curr_lens_pos = target_lens_pos;
 
 		} else {
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			struct damping_params_t damping_param, *usr_damping_param ; // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			target_step_pos = step_boundary;
 			target_lens_pos =
 				a_ctrl->step_position_table[target_step_pos];
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			usr_damping_param = &(move_params->ringing_params[a_ctrl->curr_region_index]) ;
-			if (copy_from_user(&damping_param,
-					(void *)usr_damping_param,
-					sizeof(struct damping_params_t)))
-			{
-				pr_err("%s: ringing_param is on FAULT Address : %p\n",
-						__func__, (void *)usr_damping_param ) ;
-				return -EFAULT;
-			}
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			rc = a_ctrl->func_tbl->
 				actuator_write_focus(
 					a_ctrl,
 					curr_lens_pos,
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-//					&ringing_params_kernel,
-					&damping_param, // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
+					&(move_params->
+						ringing_params[a_ctrl->
+						curr_region_index]),
 					sign_dir,
 					target_lens_pos);
 			if (rc < 0) {
@@ -423,132 +351,6 @@ static int32_t msm_actuator_move_focus(
 
 	return rc;
 }
-/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-static int32_t msm_actuator_move_focus_manual(
-	struct msm_actuator_ctrl_t *a_ctrl,
-	struct msm_actuator_move_params_t *move_params)
-{
-	int32_t rc = 0;
-	int8_t sign_dir = move_params->sign_dir;
-	uint16_t step_boundary = 0;
-	uint16_t target_step_pos = 0;
-	uint16_t target_lens_pos = 0;
-	int16_t dest_step_pos = move_params->dest_step_pos;
-	uint16_t curr_lens_pos = 0;
-	int dir = move_params->dir;
-	int32_t num_steps = move_params->num_steps;
-
-	CDBG("%s called, dir %d, num_steps %d\n",
-		__func__,
-		dir,
-		num_steps);
-
-	if (dest_step_pos == a_ctrl->curr_step_pos)
-		return rc;
-
-	curr_lens_pos = a_ctrl->step_position_table_manual[a_ctrl->curr_step_pos];
-	a_ctrl->i2c_tbl_index = 0;
-	printk("curr_step_pos =%d dest_step_pos =%d curr_lens_pos=%d\n",
-		a_ctrl->curr_step_pos, dest_step_pos, curr_lens_pos);
-
-	while (a_ctrl->curr_step_pos != dest_step_pos) {
-		step_boundary =
-			a_ctrl->region_params[a_ctrl->curr_region_index].
-			step_bound[dir];
-		if ((dest_step_pos * sign_dir) <=
-			(step_boundary * sign_dir)) {
-
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			struct damping_params_t damping_param, *usr_damping_param ; // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			target_step_pos = dest_step_pos;
-			target_lens_pos =
-				a_ctrl->step_position_table_manual[target_step_pos];
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			usr_damping_param = &(move_params->ringing_params[a_ctrl->curr_region_index]) ;
-			if (copy_from_user(&damping_param,
-					(void *)usr_damping_param,
-					sizeof(struct damping_params_t)))
-			{
-				pr_err("%s: ringing_param is on FAULT Address : %p\n",
-						__func__, (void *)usr_damping_param ) ;
-				return -EFAULT;
-			}
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			rc = a_ctrl->func_tbl->
-				actuator_write_focus(
-					a_ctrl,
-					curr_lens_pos,
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-//					&(move_params->
-//						ringing_params[a_ctrl->
-//						curr_region_index]),
-					&damping_param, // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-					sign_dir,
-					target_lens_pos);
-			if (rc < 0) {
-				pr_err("%s: error:%d\n",
-					__func__, rc);
-				return rc;
-			}
-			curr_lens_pos = target_lens_pos;
-
-		} else {
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			struct damping_params_t damping_param, *usr_damping_param ; // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			target_step_pos = step_boundary;
-			target_lens_pos =
-				a_ctrl->step_position_table_manual[target_step_pos];
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			usr_damping_param = &(move_params->ringing_params[a_ctrl->curr_region_index]) ;
-			if (copy_from_user(&damping_param,
-					(void *)usr_damping_param,
-					sizeof(struct damping_params_t)))
-			{
-				pr_err("%s: ringing_param is on FAULT Address : %p\n",
-						__func__, (void *)usr_damping_param ) ;
-				return -EFAULT;
-			}
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-			rc = a_ctrl->func_tbl->
-				actuator_write_focus(
-					a_ctrl,
-					curr_lens_pos,
-/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-//					&(move_params->
-//						ringing_params[a_ctrl->
-//						curr_region_index]),
-					&damping_param, // namkyu2.kang
-/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
-					sign_dir,
-					target_lens_pos);
-			if (rc < 0) {
-				pr_err("%s: error:%d\n",
-					__func__, rc);
-				return rc;
-			}
-			curr_lens_pos = target_lens_pos;
-
-			a_ctrl->curr_region_index += sign_dir;
-		}
-		a_ctrl->curr_step_pos = target_step_pos;
-	}
-
-	rc = msm_camera_i2c_write_table_w_microdelay(&a_ctrl->i2c_client,
-		a_ctrl->i2c_reg_tbl, a_ctrl->i2c_tbl_index,
-		a_ctrl->i2c_data_type);
-	if (rc < 0) {
-		pr_err("%s: i2c write error:%d\n",
-			__func__, rc);
-		return rc;
-	}
-	a_ctrl->i2c_tbl_index = 0;
-
-	return rc;
-}
-/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
 
 static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 	struct msm_actuator_set_info_t *set_info)
@@ -560,6 +362,7 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 	uint16_t step_boundary = 0;
 	uint32_t max_code_size = 1;
 	uint16_t data_size = set_info->actuator_params.data_size;
+	uint16_t i=0;
 	CDBG("%s called\n", __func__);
 
 	for (; data_size > 0; data_size--)
@@ -568,12 +371,6 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 	kfree(a_ctrl->step_position_table);
 	a_ctrl->step_position_table = NULL;
 
-	if (set_info->af_tuning_params.total_steps
-		>  MAX_ACTUATOR_AF_TOTAL_STEPS) {
-		pr_err("%s: Max actuator totalsteps exceeded = %d\n",
-		__func__, set_info->af_tuning_params.total_steps);
-		return -EFAULT;
-	}
 	/* Fill step position table */
 	a_ctrl->step_position_table =
 		kmalloc(sizeof(uint16_t) *
@@ -612,16 +409,20 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 		}
 	}
 
+	for (i=0; i<set_info->af_tuning_params.total_steps; i++) {
+		printk("%s: Step_Pos_Table[%d]:%d\n", __func__, i,
+			a_ctrl->step_position_table[i]);
+	}
 	return rc;
 }
 
-/* LGE_CHANGE_S L9II Camera Actuator bringup 2013-03-21 jinsang.yun@lge.com */
+/*                                                                          */
 #if defined(CONFIG_IMX111)
     extern uint8_t imx111_afcalib_data[4];
 #endif
-/* LGE_CHANGE_E L9II Camera Actuator bringup 2013-03-21 jinsang.yun@lge.com */
+/*                                                                          */
 
-/* LGE_CHANGE_S, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
+/*                                                                          */
 #ifdef SUPPORT_AF_CALIBRATION
 static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_t *a_ctrl,
 	struct msm_actuator_set_info_t *set_info)
@@ -632,42 +433,49 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	uint32_t max_code_size = 1;
 	uint16_t data_size = set_info->actuator_params.data_size;
 	uint16_t act_start = 0, act_macro = 0, move_range = 0;
-	/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-	uint16_t move_range_manual = 0;
-	/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
 
-    for (; data_size > 0; data_size--)
-                max_code_size *= 2;
+            for (; data_size > 0; data_size--)
+                        max_code_size *= 2;
 
-    kfree(a_ctrl->step_position_table);
-    a_ctrl->step_position_table = NULL;
-
-	/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-	kfree(a_ctrl->step_position_table_manual);
-	a_ctrl->step_position_table_manual= NULL;
-	/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
+            kfree(a_ctrl->step_position_table);
+            a_ctrl->step_position_table = NULL;
 
         printk("[QCTK_EEPROM] %s called\n", __func__);
         // read from eeprom
-    /* LGE_CHANGE_S L9II Camera Actuator bringup 2013-03-21 jinsang.yun@lge.com */
+    /*                                                                          */
+/*                                                                                     */
+  #if defined(CONFIG_S5K4E5YA_EEPROM) || defined (CONFIG_OV5693_EEPROM)
     #if defined(CONFIG_S5K4E5YA_EEPROM)
-	act_start = (uint16_t)(s5k4e5ya_afcalib_data[1] << 8) |
-			s5k4e5ya_afcalib_data[0];
-	act_macro = (uint16_t)(s5k4e5ya_afcalib_data[3] << 8) |
-			s5k4e5ya_afcalib_data[2];
-	printk("[QCTK_EEPROM][s5k4e5ya] %s: act_start = %d\n",__func__,act_start);
-	printk("[QCTK_EEPROM][s5k4e5ya] %s: act_macro = %d\n",__func__,act_macro);
-
+	if(act_start == 0 && act_macro == 0) { // to prevent value is not overwritten when 2 eeproms were configured at once.
+		act_start = (uint16_t)(s5k4e5ya_afcalib_data[1] << 8) |
+				s5k4e5ya_afcalib_data[0];
+		act_macro = (uint16_t)(s5k4e5ya_afcalib_data[3] << 8) |
+				s5k4e5ya_afcalib_data[2];
+		printk("[QCTK_EEPROM][s5k4e5ya] %s: act_start = %d\n",__func__,act_start);
+		printk("[QCTK_EEPROM][s5k4e5ya] %s: act_macro = %d\n",__func__,act_macro);
+	}
+    #endif
+    #if defined (CONFIG_OV5693_EEPROM)
+	if(act_start == 0 && act_macro == 0) { // to prevent value is not overwritten when 2 eeproms were configured at once.
+		act_start = (uint16_t)(ov5693_afcalib_data[1] << 8) |
+				ov5693_afcalib_data[0];
+		act_macro = (uint16_t)(ov5693_afcalib_data[3] << 8) |
+				ov5693_afcalib_data[2];
+		printk("[QCTK_EEPROM][ov5693] %s: act_start = %d\n",__func__,act_start);
+		printk("[QCTK_EEPROM][ov5693] %s: act_macro = %d\n",__func__,act_macro);
+	}
+    #endif
+/*                                                                                     */
 	if (act_start <= ACTUATOR_MIN_MOVE_RANGE || act_macro > ACTUATOR_MAX_MOVE_RANGE) {
 	    printk("[QTCK_EEPROM] Out of AF MIN-MAX Value, Not use eeprom\n");
 	    goto act_cal_fail;
-    }
+    } 
 
 	if ((act_start < ACTUATOR_MIN_INFINIT_RANGE) || (act_start > ACTUATOR_MAX_INFINIT_RANGE)){
 		printk("[QTCK_EEPROM] Out of AF INFINIT calibration range, Not use eeprom\n");
 		goto act_cal_fail;
 	}
-
+	
 	if ((act_macro < ACTUATOR_MIN_MACRO_RANGE) || (act_macro > ACTUATOR_MAX_MACRO_RANGE)){
 		printk("[QTCK_EEPROM] Out of AF MACRO calibration range, Not use eeprom\n");
 		goto act_cal_fail;
@@ -685,88 +493,54 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	printk("[QCTK_EEPROM][IMX111] %s: act_start = %d\n",__func__,act_start);
 	printk("[QCTK_EEPROM][IMX111] %s: act_macro = %d\n",__func__,act_macro);
 	#endif
-	/* LGE_CHANGE_S L9II Camera Actuator bringup 2013-03-21 jinsang.yun@lge.com */
+	/*                                                                          */
+	
+            /* Fill step position table */
+            a_ctrl->step_position_table =
+                        kmalloc(sizeof(uint16_t) *
+                        (set_info->af_tuning_params.total_steps + 1), GFP_KERNEL);
 
-    /* Fill step position table */
-    a_ctrl->step_position_table =
-                kmalloc(sizeof(uint16_t) *
-                (set_info->af_tuning_params.total_steps + 1), GFP_KERNEL);
+            if (a_ctrl->step_position_table == NULL)
+                        return -EFAULT;
 
-    if (a_ctrl->step_position_table == NULL)
-                return -EFAULT;
+            //intial code
+            cur_code = set_info->af_tuning_params.initial_code;
+            a_ctrl->step_position_table[0] = a_ctrl->initial_code;
 
-	/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-	a_ctrl->step_position_table_manual =
-				kmalloc(sizeof(uint16_t) *
-				(set_info->af_tuning_params.total_steps + 1), GFP_KERNEL);
+            // start code - by calibration data
+            if (act_start > ACTUATOR_MARGIN)
+                        a_ctrl->step_position_table[1] = act_start - ACTUATOR_MARGIN;
+            else
+                        a_ctrl->step_position_table[1] = act_start;
 
-	if (a_ctrl->step_position_table_manual== NULL)
-		return -EFAULT;
-	/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-
-    //intial code
-    cur_code = set_info->af_tuning_params.initial_code;
-    a_ctrl->step_position_table[0] = a_ctrl->initial_code;
-
-
-    // start code - by calibration data
-    if (act_start > ACTUATOR_MARGIN)
-                a_ctrl->step_position_table[1] = act_start - ACTUATOR_MARGIN;
-    else
-                a_ctrl->step_position_table[1] = act_start;
-
-    move_range = act_macro - a_ctrl->step_position_table[1] + ACTUATOR_MARGIN;
-
-	/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-	if ( act_start > MANUAL_ACT_MARGIN )
-		a_ctrl->step_position_table_manual[1] = act_start - MANUAL_ACT_MARGIN;
-	else
-		a_ctrl->step_position_table_manual[1] = act_start ;
-
-	move_range_manual= act_macro - a_ctrl->step_position_table_manual[1] + MANUAL_ACT_MARGIN;
-	/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-
-	cur_code = set_info->af_tuning_params.initial_code;
-	a_ctrl->step_position_table_manual[step_index++] = cur_code;
+            move_range = act_macro - a_ctrl->step_position_table[1] + ACTUATOR_MARGIN;
 
 	//printk("[QCTK_EEPROM] move_range: %d\n", move_range);
 	//printk("[QCTK_EEPROM] a_ctrl->total_steps = %d\n",a_ctrl->total_steps);
 	//printk("[QCTK_EEPROM] set_info->af_tuning_params.total_steps = %d\n",set_info->af_tuning_params.total_steps);
 
-    // Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-11-23 Unnecessary action remove when using eeprom
+    //                                                                                                 
 	if (move_range < ACTUATOR_MIN_FOCUS_RANGE)
 	{
 	    printk("[QTCK_EEPROM] Not use eeprom\n");
 		goto act_cal_fail;
 	}
-	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-11-23 Unnecessary action remove when using eeprom
+	//                                                                                               
 
 	for (step_index = 2;step_index < set_info->af_tuning_params.total_steps;step_index++) {
 		a_ctrl->step_position_table[step_index]
 			= ((step_index - 1) * move_range + ((set_info->af_tuning_params.total_steps - 1) >> 1))
 			/ (set_info->af_tuning_params.total_steps - 1) + a_ctrl->step_position_table[1];
-
-		/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-		a_ctrl->step_position_table_manual[step_index]
-			= ((step_index - 1) * move_range_manual+ ((set_info->af_tuning_params.total_steps - 1) >> 1))
-			/ (set_info->af_tuning_params.total_steps - 1) + a_ctrl->step_position_table_manual[1];
-		/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
 	}
 
-/* LGE_CHANGE_S, revert to original, 2012-04-27, sungmin.woo@lge.com */
+/*                                                                   */
 	//printk("Actuator Clibration table: start(%d),macro(%d) ==============\n",act_start, act_macro);
         //
 	//for (step_index = 0; step_index < a_ctrl->total_steps; step_index++)
 	//	printk("step_position_table[%d]= %d\n",step_index, a_ctrl->step_position_table[step_index]);
-/* LGE_CHANGE_E, revert to original, 2012-04-27, sungmin.woo@lge.com */
-	/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-	//for (step_index = 0; step_index < a_ctrl->total_steps; step_index++)
-		//printk("step_position_table_manual[%d]= %d\n",step_index,a_ctrl->step_position_table_manual[step_index]);
-	/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-
-    a_ctrl->curr_step_pos = 0;
-    a_ctrl->curr_region_index = 0;
-
+/*                                                                   */
+            a_ctrl->curr_step_pos = 0;
+            a_ctrl->curr_region_index = 0;
 	return rc;
 
 act_cal_fail:
@@ -776,7 +550,7 @@ act_cal_fail:
 }
 /* QCT_CHANGED_E, add AF calibration parameters , 2012-08-06, kwangilc@qualcomm.com */
 #endif
-/* LGE_CHANGE_S, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
+/*                                                                          */
 
 static int32_t msm_actuator_set_default_focus(
 	struct msm_actuator_ctrl_t *a_ctrl,
@@ -826,16 +600,9 @@ static int32_t msm_actuator_init(struct msm_actuator_ctrl_t *a_ctrl,
 		pr_err("%s: Actuator function table not found\n", __func__);
 		return rc;
 	}
-	if (set_info->af_tuning_params.total_steps
-		>  MAX_ACTUATOR_AF_TOTAL_STEPS) {
-		pr_err("%s: Max actuator totalsteps exceeded = %d\n",
-		__func__, set_info->af_tuning_params.total_steps);
-		return -EFAULT;
-	}
-	if (set_info->af_tuning_params.region_size <= MAX_ACTUATOR_REGION) {
-		a_ctrl->region_size = set_info->af_tuning_params.region_size;
-	} else {
-		a_ctrl->region_size = 0;
+
+	a_ctrl->region_size = set_info->af_tuning_params.region_size;
+	if (a_ctrl->region_size > MAX_ACTUATOR_REGION) {
 		pr_err("%s: MAX_ACTUATOR_REGION is exceeded.\n", __func__);
 		return -EFAULT;
 	}
@@ -850,30 +617,24 @@ static int32_t msm_actuator_init(struct msm_actuator_ctrl_t *a_ctrl,
 	a_ctrl->i2c_data_type = set_info->actuator_params.i2c_data_type;
 	a_ctrl->i2c_client.client->addr = set_info->actuator_params.i2c_addr;
 	a_ctrl->i2c_client.addr_type = set_info->actuator_params.i2c_addr_type;
-	if (set_info->actuator_params.reg_tbl_size <=
-		MAX_ACTUATOR_REG_TBL_SIZE) {
-		a_ctrl->reg_tbl_size = set_info->actuator_params.reg_tbl_size;
-	} else {
-		a_ctrl->reg_tbl_size = 0;
+	a_ctrl->reg_tbl_size = set_info->actuator_params.reg_tbl_size;
+	if (a_ctrl->reg_tbl_size > MAX_ACTUATOR_REG_TBL_SIZE) {
 		pr_err("%s: MAX_ACTUATOR_REG_TBL_SIZE is exceeded.\n",
 			__func__);
 		return -EFAULT;
 	}
 
-/* LGE_CHANGE_S, change reg table size for mem overflow issue when actuator moving, it is caused by damping steps, 2013-07-11, donghyun.kwon@lge.com */
+/*                                                                                                                                                   */
 #if 1
 	a_ctrl->i2c_reg_tbl =
 		kmalloc(sizeof(struct msm_camera_i2c_reg_tbl) *
 		((set_info->af_tuning_params.total_steps*2) + 1), GFP_KERNEL); 
-	
-		pr_err("%s: total_steps %d\n",	__func__, set_info->af_tuning_params.total_steps*2); /*LGE_CHANGE_S, temporary code for debugging 2013-08-10, soojong.jin@lge.com */
-		
 #else
 	a_ctrl->i2c_reg_tbl =
 		kmalloc(sizeof(struct msm_camera_i2c_reg_tbl) *
 		(set_info->af_tuning_params.total_steps + 1), GFP_KERNEL); 
 #endif
-/* LGE_CHANGE_E, change reg table size for mem overflow issue when actuator moving, it is caused by damping steps, 2013-07-11, donghyun.kwon@lge.com */
+/*                                                                                                                                                   */
 
 	if (!a_ctrl->i2c_reg_tbl) {
 		pr_err("%s kmalloc fail\n", __func__);
@@ -888,9 +649,7 @@ static int32_t msm_actuator_init(struct msm_actuator_ctrl_t *a_ctrl,
 		return -EFAULT;
 	}
 
-	if (set_info->actuator_params.init_setting_size &&
-		set_info->actuator_params.init_setting_size
-		<= MAX_ACTUATOR_REG_TBL_SIZE) {
+	if (set_info->actuator_params.init_setting_size) {
 		if (a_ctrl->func_tbl->actuator_init_focus) {
 			init_settings = kmalloc(sizeof(struct reg_settings_t) *
 				(set_info->actuator_params.init_setting_size),
@@ -968,14 +727,7 @@ static int32_t msm_actuator_config(struct msm_actuator_ctrl_t *a_ctrl,
 		if (rc < 0)
 			pr_err("%s move focus failed %d\n", __func__, rc);
 		break;
-	/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-	case CFG_MOVE_FOCUS_MANUAL:
-		rc = a_ctrl->func_tbl->actuator_move_focus_manual(a_ctrl,
-			&cdata.cfg.move);
-		if (rc < 0)
-			pr_err("%s init manaul table failed %d\n", __func__, rc);
-		break;
-	/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
+
 	default:
 		break;
 	}
@@ -993,7 +745,6 @@ static int32_t msm_actuator_i2c_probe(
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("i2c_check_functionality failed\n");
-		rc = -EFAULT;
 		goto probe_failure;
 	}
 
@@ -1113,7 +864,7 @@ static struct msm_actuator msm_vcm_actuator_table = {
 	.act_type = ACTUATOR_VCM,
 	.func_tbl = {
 #ifdef SUPPORT_AF_CALIBRATION
-		.actuator_init_step_table = msm_actuator_init_step_table_use_eeprom, /* LGE_CHANGE, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
+		.actuator_init_step_table = msm_actuator_init_step_table_use_eeprom, /*                                                                        */
 #else
 		.actuator_init_step_table = msm_actuator_init_step_table,
 #endif
@@ -1122,9 +873,6 @@ static struct msm_actuator msm_vcm_actuator_table = {
 		.actuator_set_default_focus = msm_actuator_set_default_focus,
 		.actuator_init_focus = msm_actuator_init_focus,
 		.actuator_parse_i2c_params = msm_actuator_parse_i2c_params,
-		/* LGE_CHANGE_S, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
-		.actuator_move_focus_manual = msm_actuator_move_focus_manual,
-		/* LGE_CHANGE_E, Separate focus table for AF and MF, 2013-07-19, jinsang.yun@lge.com */
 	},
 };
 
