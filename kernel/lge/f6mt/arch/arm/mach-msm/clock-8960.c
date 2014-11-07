@@ -5799,28 +5799,17 @@ static struct clk_lookup msm_clocks_8960_common[] __initdata = {
 	CLK_LOOKUP("iface_clk",		pmic_arb1_p_clk.c,	""),
 	CLK_LOOKUP("core_clk",		pmic_ssbi2_clk.c,	""),
 	CLK_LOOKUP("mem_clk",		rpm_msg_ram_p_clk.c,	""),
-	/* LGE_CHANGE_S, Featuring of LGE camera, 2013-06-13, jinsang.yun@lge.com */
-	#if defined (CONFIG_S5K4E5YA)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0020"),
-	#elif defined (CONFIG_HI543)
-	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-0040"),
-	#elif defined (CONFIG_IMX111)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-000d"),
-	#endif
-
-	#if defined (CONFIG_HI707)
 	CLK_LOOKUP("cam_clk",		cam1_clk.c, "4-0060"),
-	#elif defined (CONFIG_IMX119)
 	CLK_LOOKUP("cam_clk",		cam1_clk.c, "4-006e"),
-	#endif
-
 	#if 0 /* Qualcomm Original */
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-001a"),
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0010"),
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-006c"),
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0048"),
 	CLK_LOOKUP("cam_clk",		cam2_clk.c,		NULL),
-	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0020"),
+
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0034"),
 	#endif
     /* LGE_CHANGE_E, Featuring of LGE camera, 2013-06-13, jinsang.yun@lge.com */
@@ -6201,7 +6190,7 @@ static struct clk_lookup msm_clocks_8930[] = {
 	/* LGE_CHANGE_S, Featuring of LGE camera, 2013-06-13, jinsang.yun@lge.com */
 	#if defined (CONFIG_S5K4E5YA)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0020"),
-	#elif defined (CONFIG_HI543)
+	#elif defined (CONFIG_OV5693)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-0040"),
 	#elif defined (CONFIG_IMX111)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-000d"),

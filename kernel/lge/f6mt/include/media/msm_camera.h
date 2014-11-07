@@ -1929,6 +1929,12 @@ struct msm_calib_wb {
 	uint16_t gr_over_gb;
 };
 
+#if 1 //                                                  
+struct msm_calib_ver {
+	uint16_t cal_ver; // rafal47 0813
+};
+#endif
+
 struct msm_calib_af {
 	uint16_t macro_dac;
 	uint16_t inf_dac;
@@ -1941,6 +1947,12 @@ struct msm_calib_lsc {
 	uint16_t gr_gain[221];
 	uint16_t gb_gain[221];
 };
+
+/*                                                                                                         */
+struct msm_calib_id {
+	uint16_t sensor_id;
+};
+/*                                                                                                         */
 
 struct pixel_t {
 	int x;
@@ -1959,13 +1971,37 @@ struct msm_calib_raw {
 	uint32_t size;
 };
 
+#if defined(CONFIG_S5K4E5YA_EEPROM) || defined(CONFIG_OV5693_EEPROM) /*                                                                                     */
+struct msm_camera_eeprom_info_t {
+	struct msm_eeprom_support af;
+	struct msm_eeprom_support wb;
+	struct msm_eeprom_support lsc;
+	struct msm_eeprom_support id; /*                                                                                                       */
+	struct msm_eeprom_support dpc;
+	struct msm_eeprom_support raw;
+};
+
+#elif defined(CONFIG_IMX091_EEPROM)
+struct msm_camera_eeprom_info_t {
+	struct msm_eeprom_support af;
+	struct msm_eeprom_support wb50;
+	struct msm_eeprom_support wb30;
+	struct msm_eeprom_support lsc50;
+	struct msm_eeprom_support lsc40;
+	struct msm_eeprom_support dpc;
+	struct msm_eeprom_support cal_ver; //                                                        
+	struct msm_eeprom_support raw;
+};
+#else
 struct msm_camera_eeprom_info_t {
 	struct msm_eeprom_support af;
 	struct msm_eeprom_support wb;
 	struct msm_eeprom_support lsc;
 	struct msm_eeprom_support dpc;
+	struct msm_eeprom_support cal_ver; //                                                        
 	struct msm_eeprom_support raw;
 };
+#endif
 
 struct msm_eeprom_cfg_data {
 	int cfgtype;

@@ -89,6 +89,10 @@ VREG_CONSUMERS(L9) = {
 #endif	
 /* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 
+#if defined (CONFIG_OV5693)
+	REGULATOR_SUPPLY("cam1_vana",		"4-0040"), /* GSBI4, Slave Addr: 0x20 << 1, ov5693 *//*                                                                                   */
+#endif
+
 //	REGULATOR_SUPPLY("cam_vaf",		"4-001a"),
 //	REGULATOR_SUPPLY("cam_vaf",		"4-006c"),
 //	REGULATOR_SUPPLY("cam_vaf",		"4-0048"),
@@ -150,6 +154,9 @@ VREG_CONSUMERS(L16) = {
 };
 VREG_CONSUMERS(L17) = {
 /* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
+#if defined(CONFIG_OV5693)
+	REGULATOR_SUPPLY("cam1_vdig",	"4-0040"), /* GSBI4, Slave Addr: 0x20 << 1, ov5693 *//*                                                                                   */
+#endif
 #if defined(CONFIG_IMX111)
 #if defined(CONFIG_F6_CAM8M) && !defined(CONFIG_F6_CAM8M_HW10)
 	REGULATOR_SUPPLY("cam_vdig",			"4-000d"),
@@ -264,6 +271,9 @@ VREG_CONSUMERS(LVS2) = {
 	REGULATOR_SUPPLY("cam_vio",             "4-006e"), /* LGE_CHANGED F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #else	
 	REGULATOR_SUPPLY("cam_vio",             "4-0060"),	/* LGE_CHANGED, board bringup vt-cam for sprint, 2012-09-19, kwangsik83.kim@lge.com */
+#endif
+#if defined(CONFIG_OV5693)
+	REGULATOR_SUPPLY("cam1_vio",	"4-0040"), /* GSBI4, Slave Addr: 0x20 << 1, ov5693 *//*                                                                                   */
 #endif
 /* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 };
@@ -607,15 +617,11 @@ msm8930_rpm_regulator_init_data[] __devinitdata = {
 	RPM_LDO(L13,	 0, 0, 0, 2220000, 2220000, NULL,      0, 0),
 	RPM_LDO(L14,	 0, 1, 0, 1800000, 1800000, NULL,      0, 0),
 	RPM_LDO(L15,	 0, 1, 0, 1800000, 2950000, NULL,      0, 0),
-//[LGE_CHANGE_S] 2013.02.27, daewon1004.kim@lge.com, l9ii chang the camera voltage to 2.8v.
-#if defined ( CONFIG_MACH_LGE_L9II_COMMON )
-	RPM_LDO(L17,	 0, 1, 0, 1500000, 2800000, NULL,      0, 0), /* change voltage MAX 2.8v daewon1004.kim@lge.com */
-#elif defined(CONFIG_F6_CAM8M)
-	RPM_LDO(L17,	 0, 1, 0, 1200000, 1200000, NULL,      0, 0),
+#if defined(CONFIG_OV5693)
+	RPM_LDO(L17, 0, 1, 0, 1580000, 1600000, NULL,          0,     0),
 #else
-	RPM_LDO(L17,	 0, 1, 0, 1500000, 1800000, NULL,      0, 0), /* LGE_CHANGE, change voltage range 1.8v -> 1.5v, 2012-11-15 donghyun.kwon@lge.com */
-#endif	
-//[LGE_CHANGE_E] 2013.02.27, daewon1004.kim@lge.com, l9ii chang the camera voltage to 2.8v.
+	RPM_LDO(L17, 0, 1, 0, 2000000, 2000000, NULL,          0,     0),
+#endif
 	RPM_LDO(L18,	 0, 1, 0, 2850000, 2850000, NULL,      0, 0),
 #ifdef CONFIG_MACH_MSM8930_FX3
 	RPM_LDO(L20,	 1, 1, 0, 1200000, 1200000, "8038_s2", 10000, 10000),
