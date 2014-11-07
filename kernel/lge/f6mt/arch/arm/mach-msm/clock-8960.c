@@ -6190,11 +6190,15 @@ static struct clk_lookup msm_clocks_8930[] = {
 	/* LGE_CHANGE_S, Featuring of LGE camera, 2013-06-13, jinsang.yun@lge.com */
 	#if defined (CONFIG_S5K4E5YA)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0020"),
-	#elif defined (CONFIG_OV5693)
+	#endif
+        #if defined (CONFIG_OV5693)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-0040"),
-	#elif defined (CONFIG_IMX111)
+        #endif
+	#if defined (CONFIG_IMX111)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-000d"),
 	#endif
+
+
 	
 	#if defined (CONFIG_HI707)
 	CLK_LOOKUP("cam_clk",		cam1_clk.c, "4-0060"),
