@@ -19,7 +19,7 @@
 #include "devices.h"
 #if !defined(CONFIG_MACH_MSM8930_FX3)
 #include "board-8930.h"
-#else /*               */
+#else /* for LGE Board */
 #include <mach/board_lge.h>
 #include "board-fx3.h"
 #endif
@@ -28,10 +28,10 @@
 #include <linux/leds-as364x.h>
 #endif
 
-#if defined(CONFIG_MACH_LGE_FX3_VZW) || defined(CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_ATT) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US) || defined(CONFIG_MACH_LGE_L9II_OPEN_EU) \
+#if defined(CONFIG_MACH_LGE_FX3_VZW) || defined(CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_ATT) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US) || defined(CONFIG_MACH_LGE_L9II_COMMON) \
 	|| defined(CONFIG_F6_CAM8M) || defined(CONFIG_MACH_LGE_FX3Q_TMUS)
-//                                                                                 
-#if defined(CONFIG_MACH_LGE_L9II_OPEN_EU) && defined(CONFIG_BACKLIGHT_LM3639)
+//LGE_CHANGE_S [koh.euije@lge.com]2013.04.30 RevA:2->NA,3->B/L, RevB:2->B/L,3->IRTX
+#if defined(CONFIG_MACH_LGE_L9II_COMMON) && defined(CONFIG_BACKLIGHT_LM3639)
 #ifdef CONFIG_MACH_LGE_L9II_OPEN_EU_REV_A
 #define GPIO_CAM_FLASH_LED_EN	(3)
 #else
@@ -41,7 +41,7 @@
 #define GPIO_CAM_FLASH_AS2C	(2)
 #define GPIO_CAM_FLASH_LED_EN	(3)
 #endif
-//                                                                                 
+//LGE_CHANGE_E [koh.euije@lge.com]2013.04.30 RevA:2->NA,3->B/L, RevB:2->B/L,3->IRTX
 #define GPIO_CAM_VT_CAM_MCLK	(4)
 #define GPIO_CAM_MAIN_CAM_MCLK	(5)
 #define GPIO_CAM_I2C_SDA	(20)
@@ -54,7 +54,7 @@
 #define GPIO_CAM_VCM_PWDN	(54) /* F6 EU */
 #define GPIO_CAM_VT_CAM_RST_N	(76)
 #define GPIO_CAM_MAIN_CAM_RST_N	(107)
-/*                                                                 */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_IMX111)
 #define I2C_SLAVE_ADDR_MAIN_CAM	(0x0D)
 #elif defined (CONFIG_S5K4E5YA) //For F3Q TMUS
@@ -62,9 +62,9 @@
 #else
 #define I2C_SLAVE_ADDR_MAIN_CAM	(0x40)
 #endif
-/*                                                                 */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #define I2C_SLAVE_ADDR_ACTUATOR	(0x18)
-/*                                                                */
+/* LGE_CHANGE_S F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #ifdef CONFIG_IMX119
 #define I2C_SLAVE_ADDR_VT_CAM	(0x6e)
 #else
@@ -76,17 +76,17 @@
 #ifdef CONFIG_IMX119
 #define I2C_SLAVE_ADDR_VT_CAM	(0x6e)
 #endif
-/*                                                                */
-/*                                                                 */
+/* LGE_CHANGE_E F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_MSM_CAMERA_FLASH_LM3559)
 #define I2C_SLAVE_ADDR_LM3559 	(0x53)
 #endif
-/*                                                                 */
-/*                                                                                   */
+/* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
+/* LGE_CHANGE_S L9II Flash driver change for Rev. A  2013-04-24  jinsang.yun@lge.com */
 #if defined (CONFIG_MSM_CAMERA_FLASH_LM3639)
 #define I2C_SLAVE_ADDR_LM3639 	(0x39)
 #endif
-/*                                                                                   */
+/* LGE_CHANGE_E L9II Flash driver change for Rev. A  2013-04-24  jinsang.yun@lge.com */
 #else
 #define GPIO_CAM_FLASH_LED_EN	(2)
 #define GPIO_CAM_FLASH_LED_STROBE	(3)
@@ -99,15 +99,15 @@
 #define GPIO_CAM_MAIN_CAM_RST_N	(107)
 #define I2C_SLAVE_ADDR_MAIN_CAM	(0x20)
 #define I2C_SLAVE_ADDR_ACTUATOR	(0x18)
-#define I2C_SLAVE_ADDR_EEPROM	(0x28) /*                                                                        */
+#define I2C_SLAVE_ADDR_EEPROM	(0x28) /* LGE_CHANGE, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
 
-/*                                                                */
+/* LGE_CHANGE_S F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #ifdef CONFIG_IMX119
 #define I2C_SLAVE_ADDR_VT_CAM	(0x6e)
 #else
 #define I2C_SLAVE_ADDR_VT_CAM	(0x60)
 #endif
-/*                                                                */
+/* LGE_CHANGE_E F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #ifdef CONFIG_LEDS_AS364X
 #define I2C_SLAVE_ADDR_AS3647   (0x30)
 #endif
@@ -175,7 +175,7 @@ static struct gpiomux_setting cam_settings[] = {
 		.drv = GPIOMUX_DRV_2MA,
 		.pull = GPIOMUX_PULL_NONE,
 	},
-/*                                                               */
+/*LGE_CHANGE_S, added for VS890, 2013-03-25, soojong.jin@lge.com */
 	{
 		.func = GPIOMUX_FUNC_2, /*active 10*/
 		.drv = GPIOMUX_DRV_6MA,
@@ -187,7 +187,7 @@ static struct gpiomux_setting cam_settings[] = {
 		.drv = GPIOMUX_DRV_4MA,
 		.pull = GPIOMUX_PULL_NONE,
 	},
-/*                                                               */
+/*LGE_CHANGE_E, added for VS890, 2013-03-25, soojong.jin@lge.com */
 };
 
 #if defined(CONFIG_MACH_LGE_FX3_VZW) || defined(CONFIG_MACH_LGE_FX3Q_TMUS)
@@ -217,7 +217,7 @@ static struct msm_gpiomux_config msm8930_cam_common_configs[] = {
 	{
 		.gpio = GPIO_CAM_MAIN_CAM_MCLK, /* GPIO_5 */
 		.settings = {
-			[GPIOMUX_ACTIVE]    = &cam_settings[11], /*                                                                                                      */
+			[GPIOMUX_ACTIVE]    = &cam_settings[11], /*LGE_CHANGE_S, to enhance MCLK , driving currint should be increadsed, 2013-05-14, soojong.jin@lge.com */
 			[GPIOMUX_SUSPENDED] = &cam_settings[0],
 		},
 	},
@@ -283,11 +283,11 @@ static struct msm_gpiomux_config msm8930_cam_2d_configs[] = {
 		},
 	},
 };
-#elif defined(CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_ATT) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US) || defined(CONFIG_MACH_LGE_L9II_OPEN_EU) \
-	|| defined(CONFIG_F6_CAM8M ) 
+#elif defined(CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_ATT) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US) || defined(CONFIG_MACH_LGE_L9II_COMMON) \
+	|| defined(CONFIG_F6_CAM8M)
 static struct msm_gpiomux_config msm8930_cam_common_configs[] = {
-//                                                                                 
-#if !(defined(CONFIG_MACH_LGE_L9II_OPEN_EU) && defined(CONFIG_BACKLIGHT_LM3639))
+//LGE_CHANGE_S [koh.euije@lge.com]2013.04.30 RevA:2->NA,3->B/L, RevB:2->B/L,3->IRTX
+#if !(defined(CONFIG_MACH_LGE_L9II_COMMON) && defined(CONFIG_BACKLIGHT_LM3639))
 	{
 		.gpio = GPIO_CAM_FLASH_AS2C, /* GPIO_2 */
 		.settings = {
@@ -303,7 +303,7 @@ static struct msm_gpiomux_config msm8930_cam_common_configs[] = {
 		},
 	},
 #endif
-//                                                                                 
+//LGE_CHANGE_E [koh.euije@lge.com]2013.04.30 RevA:2->NA,3->B/L, RevB:2->B/L,3->IRTX
 	{
 		.gpio = GPIO_CAM_VT_CAM_MCLK, /* GPIO_4 */
 		.settings = {
@@ -339,7 +339,7 @@ static struct msm_gpiomux_config msm8930_cam_common_configs[] = {
 			[GPIOMUX_SUSPENDED] = &cam_settings[0],
 		},
 	},
-#if !defined(CONFIG_MACH_LGE_L9II_OPEN_EU)
+#if !defined(CONFIG_MACH_LGE_L9II_COMMON)
 #if !defined(CONFIG_F6_CAM8M)
 	{
 		.gpio = GPIO_CAM_LDO_EN_2,  /* GPIO_52 */
@@ -454,7 +454,7 @@ static struct msm_gpiomux_config msm8930_cam_2d_configs[] = {
 #endif
 
 
-/*                                                           */
+/* LGE_CHANGED_S, no need, 2012-10-20 kwangsik83.kim@lge.com */
 #if 0
 #define VFE_CAMIF_TIMER1_GPIO 2
 #define VFE_CAMIF_TIMER2_GPIO 3
@@ -467,7 +467,7 @@ static struct msm_camera_sensor_strobe_flash_data strobe_flash_xenon = {
 	.irq = MSM_GPIO_TO_INT(VFE_CAMIF_TIMER3_GPIO_INT),
 };
 #endif
-/*                                                           */
+/* LGE_CHANGED_E, no need, 2012-10-20 kwangsik83.kim@lge.com */
 
 static struct msm_bus_vectors cam_init_vectors[] = {
 	{
@@ -510,8 +510,8 @@ static struct msm_bus_vectors cam_preview_vectors[] = {
 		.ib  = 0,
 	},
 };
-/*                                                                                    */
-#if defined(CONFIG_MACH_LGE_L9II_OPEN_EU)
+/* LGE_CHANGE_S L9II Fix overflow VFE duing recording  2013-05-15 jinsang.yun@lge.com */
+#if defined(CONFIG_MACH_LGE_L9II_COMMON) || defined(CONFIG_F6_CAM8M)
 static struct msm_bus_vectors cam_video_vectors[] = {
 	{
 		.src = MSM_BUS_MASTER_VFE,
@@ -555,7 +555,7 @@ static struct msm_bus_vectors cam_video_vectors[] = {
 	},
 };
 #endif
-/*                                                                                    */
+/* LGE_CHANGE_S L9II Fix overflow VFE duing recording  2013-05-15 jinsang.yun@lge.com */
 
 static struct msm_bus_vectors cam_snapshot_vectors[] = {
 	{
@@ -719,47 +719,51 @@ static struct msm_camera_device_platform_data msm_camera_csi_device_data[] = {
 };
 
 static struct camera_vreg_t msm_8930_back_cam_vreg[] = {
-#if !(defined(CONFIG_MACH_LGE_FX3_VZW) || defined(CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US) || defined(CONFIG_MACH_LGE_L9II_OPEN_EU) \
+#if !(defined(CONFIG_MACH_LGE_FX3_VZW) || defined(CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US) || defined(CONFIG_MACH_LGE_L9II_COMMON) \
 	|| defined(CONFIG_F6_CAM8M))
-	{"cam_vdig", REG_LDO, 1580000, 1600000, 100000},  /* VDIG(L17): 1.8V */  /*                                                                                 */
+	{"cam_vdig", REG_LDO, 1580000, 1600000, 100000},  /* VDIG(L17): 1.8V */  /* LGE_CHANGE, change voltage range 1.8v -> 1.5v, 2012-11-15 donghyun.kwon@lge.com */
 	{"cam_vana", REG_LDO, 2800000, 2850000, 85600},  /* VANA(L9) : 2.8V */
 	{"cam_vio", REG_VS, 0, 0, 0},  /* VDDIO(LVS2) : 1.8V */
 #else
-/*                                                                 */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_IMX111)
 	{"cam_vio", REG_VS, 0, 0, 0},
 	{"cam_vana", REG_LDO, 2800000, 2850000, 85600},
+#if !defined(CONFIG_F6_CAM8M_HW10) && defined(CONFIG_F6_CAM8M)
+	{"cam_vdig", REG_LDO, 1200000, 1200000, 105000, 500},
+#else
 	{"cam_vdig", REG_LDO, 1200000, 1200000, 105000},
+#endif
 #if !defined (CONFIG_F6_CAM8M)
 	{"cam_vaf", REG_LDO, 2800000, 2800000, 300000},
 #endif
 #else
 	{"cam_vio", REG_VS, 0, 0, 0},  /* VDDIO(LVS2) : 1.8V */
 	{"cam_vana", REG_LDO, 2800000, 2850000, 85600},  /* VANA(L9) : 2.8V */
-	{"cam_vdig", REG_LDO, 1800000, 1800000, 120000},  /* VDIG(L17): 1.8V */	/*                                                                                 */
+	{"cam_vdig", REG_LDO, 1800000, 1800000, 120000},  /* VDIG(L17): 1.8V */	/* LGE_CHANGE, change voltage range 1.8v -> 1.5v, 2012-11-15 donghyun.kwon@lge.com */
 #endif
-/*                                                                 */
+/* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #endif
 };
 
 /*                                                                                     */
 #if defined (CONFIG_OV5693)
 static struct camera_vreg_t msm_8930_ov5693_cam_vreg[] = {
-	{"cam_vana", REG_LDO, 2850000, 2850000, 85600},  /* VANA(L9) : 2.8V */
-	{"cam_vio", REG_VS, 0, 0, 0},  /* VDDIO(LVS2) : 1.8V */
-	{"cam_vdig", REG_LDO, 1580000, 1600000, 100000},  /* VDIG(L17): 1.8V */
+	{"cam1_vana", REG_LDO, 2850000, 2850000, 85600},  /* VANA(L9) : 2.8V */
+	{"cam1_vio", REG_VS, 0, 0, 0},  /* VDDIO(LVS2) : 1.8V */
+	{"cam1_vdig", REG_LDO, 1580000, 1600000, 100000},  /* VDIG(L17): 1.8V */
 };
 #endif
 /*                                                                                     */
 
 static struct camera_vreg_t msm_8930_front_cam_vreg[] = {
-/*                                                                */
+/* LGE_CHANGE_S F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 	#ifdef CONFIG_IMX119
 	{"cam_vio", REG_VS, 0, 0, 0},  /* VDDIO(LVS2) : 1.8V */
 	{"cam_vana", REG_LDO, 2700000, 2700000, 85600},  /* VANA(L9) : 2.8V */
 	{"cam_vdig", REG_LDO, 1200000, 1200000, 105000},  /* VDIG(L12): 1.2V */	
 	#else
-/*                                                                */
+/* LGE_CHANGE_E F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 	{"cam_vio", REG_VS, 0, 0, 0},  /* VDDIO(LVS2) : 1.8V */
 	{"cam_vana", REG_LDO, 2850000, 2850000, 85600},  /* VANA(L9) : 2.8V */
 	{"cam_vdig", REG_LDO, 1800000, 1800000, 85600},  /* VDIG(L17): 1.8V */
@@ -776,7 +780,7 @@ static struct gpio msm8930_common_cam_gpio[] = {
 
 static struct gpio msm8930_front_cam_gpio[] = {
 	{GPIO_CAM_VT_CAM_RST_N, GPIOF_DIR_OUT, "CAM_RESET"},
-#ifndef CONFIG_IMX119  /*                                                                                                                 */
+#ifndef CONFIG_IMX119  /* LGE_CHANGE, fix issue what enterring a preview mode in case of front camera, 2013-02-12, donghyun.kwon@lge.com  */
 	{GPIO_CAM_VT_CAM_PWDN, GPIOF_DIR_OUT, "CAM_PWDN"},
 #endif
 };
@@ -786,16 +790,19 @@ static struct gpio msm8930_back_cam_gpio[] = {
 };
 
 static struct msm_gpio_set_tbl msm8930_front_cam_gpio_set_tbl[] = {
-/*                                                                */
+/* LGE_CHANGE_S F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #ifdef CONFIG_IMX119
 	{GPIO_CAM_VT_CAM_RST_N, GPIOF_OUT_INIT_LOW, 1000},
 	{GPIO_CAM_VT_CAM_RST_N, GPIOF_OUT_INIT_HIGH, 2000},
 #endif
-/*                                                                */
+/* LGE_CHANGE_E F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 };
 
 static struct msm_gpio_set_tbl msm8930_back_cam_gpio_set_tbl[] = {
-#if !(defined(CONFIG_MACH_LGE_FX3_VZW) /*                                     */ || defined (CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US))
+#if !(defined(CONFIG_MACH_LGE_FX3_VZW) /*|| defined(CONFIG_MACH_LGE_FX3Q_TMUS)*/ || defined (CONFIG_MACH_LGE_FX3_TMUS) || defined(CONFIG_MACH_LGE_FX3_WCDMA_TRF_US))
+	{GPIO_CAM_MAIN_CAM_RST_N, GPIOF_OUT_INIT_LOW, 1000},
+	{GPIO_CAM_MAIN_CAM_RST_N, GPIOF_OUT_INIT_HIGH, 2000},
+#elif (defined(CONFIG_MACH_LGE_FX3Q_TMUS) || (defined(CONFIG_MACH_LGE_FX3_VZW) && defined(CONFIG_S5K4E5YA)))
 	{GPIO_CAM_MAIN_CAM_RST_N, GPIOF_OUT_INIT_LOW, 1000},
 	{GPIO_CAM_MAIN_CAM_RST_N, GPIOF_OUT_INIT_HIGH, 2000},
 #endif
@@ -827,7 +834,7 @@ static struct i2c_board_info msm_act_main_cam_i2c_info = {
 	I2C_BOARD_INFO("msm_actuator", I2C_SLAVE_ADDR_ACTUATOR),
 };
 
-/*                                                                                 */
+/* LGE_CHANGE_S, add actuator profile for HI543, 2013-05-04, donghyun.kwon@lge.com */
 #if defined(CONFIG_HI543)
 static struct msm_actuator_info msm_act_main_cam_0_info = {
 	.board_info     = &msm_act_main_cam_i2c_info,
@@ -836,6 +843,20 @@ static struct msm_actuator_info msm_act_main_cam_0_info = {
 	.vcm_pwd        = 0,
 	.vcm_enable     = 1,
 };
+/* LGE_CHANGE_S, add actuator profile for IMX111, 2013-06-16, jinsang.yun@lge.com */
+#elif defined (CONFIG_IMX111)
+static struct msm_actuator_info msm_act_main_cam_1_info = {
+	.board_info     = &msm_act_main_cam_i2c_info,
+	.cam_name   = MSM_ACTUATOR_MAIN_CAM_1,
+	.bus_id         = MSM_8930_GSBI4_QUP_I2C_BUS_ID,
+#if defined(CONFIG_F6_CAM8M)
+	.vcm_pwd        = GPIO_CAM_VCM_PWDN,
+#else
+	.vcm_pwd        = 0,
+#endif
+	.vcm_enable     = 1,
+};
+/* LGE_CHANGE_S, add actuator profile for IMX111, 2013-06-16, jinsang.yun@lge.com */
 #else
 static struct msm_actuator_info msm_act_main_cam_2_info = {
 	.board_info     = &msm_act_main_cam_i2c_info,
@@ -849,7 +870,7 @@ static struct msm_actuator_info msm_act_main_cam_2_info = {
 	.vcm_enable     = 1,
 };
 #endif
-/*                                                                                 */
+/* LGE_CHANGE_E, add actuator profile for HI543, 2013-05-04, donghyun.kwon@lge.com */
 
 #ifdef CONFIG_LEDS_AS364X
 static struct msm_camera_sensor_flash_src led_flash_src = {
@@ -878,7 +899,7 @@ static struct as364x_platform_data as364x_flash_pdata = {
 };
 #endif
 
-/*                                                                 */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_IMX111)
 static struct msm_camera_sensor_flash_data flash_imx111 = {
 	.flash_type	= MSM_CAMERA_FLASH_LED,
@@ -929,12 +950,12 @@ static struct msm_camera_sensor_info msm_camera_sensor_imx111_data = {
 	.sensor_platform_info = &sensor_board_info_imx111,
 	.csi_if	= 1,
 	.camera_type = BACK_CAMERA_2D,
-	.actuator_info = &msm_act_main_cam_2_info,
+	.actuator_info = &msm_act_main_cam_1_info, /* LGE_CHANGE, add actuator profile for IMX111, 2013-06-16, jinsang.yun@lge.com */
 	.sensor_type = BAYER_SENSOR,
 	.eeprom_info = &imx111_eeprom_info,
 };
 #endif /* CONFIG_IMX111 */
-/*                                                                 */
+/* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 
 
 #ifdef CONFIG_HI543
@@ -976,7 +997,7 @@ static struct msm_camera_csi_lane_params hi543_csi_lane_params = {
 /*Start : tjeon@qualcomm.com - 20130319 */
 //#ifdef CONFIG_HI543_EEPROM
 static struct i2c_board_info hi543_eeprom_i2c_info = {
-	I2C_BOARD_INFO("hi543_eeprom", 0x14), //                                                              
+	I2C_BOARD_INFO("hi543_eeprom", 0x14), //LGE_Update yt.jeon@lge.com eeprom I2C address 0x28>>1 20120702
 };
 
 static struct msm_eeprom_info hi543_eeprom_info = {
@@ -987,7 +1008,7 @@ static struct msm_eeprom_info hi543_eeprom_info = {
 /*End : tjeon@qualcomm.com - 20130319 */
 
 static struct msm_camera_sensor_platform_info sensor_board_info_hi543 = {
-	.mount_angle	= 90, //                                                                                              
+	.mount_angle	= 90, //0, //90, /* LGE_CHANGED, flip y-sys for frame direction, 2012-10-27, kwangsik83.kim@lge.com */
 	.cam_vreg = msm_8930_back_cam_vreg,
 	.num_vreg = ARRAY_SIZE(msm_8930_back_cam_vreg),
 	.gpio_conf = &msm_8930_back_cam_gpio_conf,
@@ -999,15 +1020,15 @@ static struct msm_camera_sensor_info msm_camera_sensor_hi543_data = {
 	.sensor_name	= "hi543",
 	.pdata	= &msm_camera_csi_device_data[0],
 	.flash_data	= &flash_hi543,
-	//                                                                                                        
+	//.strobe_flash_data = &strobe_flash_xenon,  /* LGE_CHANGED, no need, 2012-10-20 kwangsik83.kim@lge.com */
 	.sensor_platform_info = &sensor_board_info_hi543,
 	.csi_if	= 1,
 	.camera_type = BACK_CAMERA_2D,
-	.actuator_info = &msm_act_main_cam_0_info, /*                                                                                          */
+	.actuator_info = &msm_act_main_cam_0_info, /* LGE_CHANGE, add actuator profile for HI543 Cam2->Cam0, 2013-05-04, donghyun.kwon@lge.com */
 
 /*Start : tjeon@qualcomm.com - 20130319 */
 //#ifdef CONFIG_HI543_EEPROM
-		.eeprom_info = &hi543_eeprom_info, /*                                                                        */
+		.eeprom_info = &hi543_eeprom_info, /* LGE_CHANGE, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
 //#endif
 /*End : tjeon@qualcomm.com - 20130319 */
 
@@ -1037,10 +1058,10 @@ static struct msm_camera_sensor_platform_info sensor_board_info_s5k4e5ya = {
 	.csi_lane_params = &s5k4e5ya_csi_lane_params,
 };
 
-/*                                                                          */
+/* LGE_CHANGE_S, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
 #ifdef CONFIG_S5K4E5YA_EEPROM
 static struct i2c_board_info s5k4e5ya_eeprom_i2c_info = {
-	I2C_BOARD_INFO("s5k4e5ya_eeprom", 0x14), //                                                              
+	I2C_BOARD_INFO("s5k4e5ya_eeprom", 0x14), //LGE_Update yt.jeon@lge.com eeprom I2C address 0x28>>1 20120702
 };
 
 static struct msm_eeprom_info s5k4e5ya_eeprom_info = {
@@ -1048,19 +1069,19 @@ static struct msm_eeprom_info s5k4e5ya_eeprom_info = {
 	.bus_id         = MSM_8930_GSBI4_QUP_I2C_BUS_ID,
 };
 #endif
-/*                                                                          */
+/* LGE_CHANGE_E, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
 
 static struct msm_camera_sensor_info msm_camera_sensor_s5k4e5ya_data = {
 	.sensor_name	= "s5k4e5ya",
 	.pdata	= &msm_camera_csi_device_data[0],
 	.flash_data	= &flash_s5k4e5ya,
-	//                                                                                                       
+	//.strobe_flash_data = &strobe_flash_xenon,  /* LGE_CHANGED,no need, 2012-10-20 kwangsik83.kim@lge.com */
 	.sensor_platform_info = &sensor_board_info_s5k4e5ya,
 	.csi_if	= 1,
 	.camera_type = BACK_CAMERA_2D,
 	.actuator_info = &msm_act_main_cam_2_info,
 #ifdef CONFIG_S5K4E5YA_EEPROM
-	.eeprom_info = &s5k4e5ya_eeprom_info, /*                                                                        */
+	.eeprom_info = &s5k4e5ya_eeprom_info, /* LGE_CHANGE, add calibration process, 2013-02-16, donghyun.kwon@lge.com */
 #endif
 	.sensor_type = BAYER_SENSOR,
 };
@@ -1156,7 +1177,7 @@ static int32_t hi707_ext_power_ctrl(int enable)
 }
 
 static struct msm_camera_sensor_platform_info sensor_board_info_hi707 = {
-	.mount_angle	= 270,   /*                                                                                */
+	.mount_angle	= 270,   /* LGE_CHANGED, flip y-sys for frame direction, 2012-10-16, donghyun.kwon@lge.com */
 	.cam_vreg = msm_8930_front_cam_vreg,
 	.num_vreg = ARRAY_SIZE(msm_8930_front_cam_vreg),
 	.gpio_conf = &msm_8930_front_cam_gpio_conf,
@@ -1175,7 +1196,7 @@ static struct msm_camera_sensor_info msm_camera_sensor_hi707_data = {
 };
 #endif /* CONFIG_HI707 */
 
-/*                                                                */
+/* LGE_CHANGE_S F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #ifdef CONFIG_IMX119
 static struct msm_camera_i2c_conf msm8930_front_cam_i2c_conf = {
 	.use_i2c_mux = 1,
@@ -1211,7 +1232,7 @@ static struct msm_camera_sensor_info msm_camera_sensor_imx119_data = {
 	.sensor_type = BAYER_SENSOR,
 };
 #endif
-/*                                                                */
+/* LGE_CHANGE_E F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 
 
 static struct platform_device msm_camera_server = {
@@ -1233,7 +1254,7 @@ void __init msm8930_init_cam(void)
 	platform_device_register(&msm8960_device_ispif);
 	platform_device_register(&msm8960_device_vfe);
 	platform_device_register(&msm8960_device_vpe);
-	platform_device_register(&msm8960_device_i2c_mux_gsbi4); /*                                                              */
+	platform_device_register(&msm8960_device_i2c_mux_gsbi4); /* LGE_CHANGE F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 }
 
 #ifdef CONFIG_I2C
@@ -1261,27 +1282,30 @@ struct i2c_board_info msm8930_camera_i2c_boardinfo[] = {
 #endif
 /*                                                                                     */
 /*                                                                 */
+
+
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_IMX111)
 	{
 		I2C_BOARD_INFO("imx111", I2C_SLAVE_ADDR_MAIN_CAM),
 		.platform_data = &msm_camera_sensor_imx111_data,
 	},
 #endif
-/*                                                                 */
+/* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #ifdef CONFIG_HI707
 	{
 		I2C_BOARD_INFO("hi707", I2C_SLAVE_ADDR_VT_CAM),
 		.platform_data = &msm_camera_sensor_hi707_data,
 	},
 #endif
-/*                                                                */
+/* LGE_CHANGE_S F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 #ifdef CONFIG_IMX119
 	{
 		I2C_BOARD_INFO("imx119", I2C_SLAVE_ADDR_VT_CAM),
 		.platform_data = &msm_camera_sensor_imx119_data,
 	},
 #endif
-/*                                                                */
+/* LGE_CHANGE_E F6 Camera porting, 2013.02.07 hyunuk.park@lge.com */
 
 };
 
@@ -1290,7 +1314,7 @@ struct msm_camera_board_info msm8930_camera_board_info = {
 	.num_i2c_board_info = ARRAY_SIZE(msm8930_camera_i2c_boardinfo),
 };
 
-/*                                                                 */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_MSM_CAMERA_FLASH_LM3559)
 
 struct led_flash_platform_data {
@@ -1316,35 +1340,6 @@ static struct i2c_board_info cam_i2c_flash_info[] = {
 };
 #endif /* CONFIG_MSM_CAMERA_FLASH_LM3559 */
 
-#if defined (CONFIG_MSM_CAMERA_FLASH_LM3639)
-/*                                                                                                                 */
-#if 0
-
-struct led_flash_platform_data {
-	unsigned gpio_en;
-	unsigned scl_gpio;
-	unsigned sda_gpio;
-};
-
-static struct led_flash_platform_data lm3639_flash_pdata[] = {
-	{
-		.scl_gpio = GPIO_CAM_I2C_SCL,
-		.sda_gpio = GPIO_CAM_I2C_SDA,
-		.gpio_en = GPIO_CAM_FLASH_LED_EN,
-	}
-};
-
-static struct i2c_board_info cam_i2c_flash_info[] = {
-	{
-	I2C_BOARD_INFO("lm3639", I2C_SLAVE_ADDR_LM3639), /* 0x39 */
-	.type = "lm3639",
-	.platform_data = &lm3639_flash_pdata,
-	}
-};
-#endif
-/*                                                                                                                 */
-#endif /* CONFIG_MSM_CAMERA_FLASH_LM3639 */
-
 #if defined(CONFIG_LEDS_AS364X)
 static struct i2c_board_info cam_i2c_flash_info[] = {
 	{
@@ -1354,7 +1349,7 @@ static struct i2c_board_info cam_i2c_flash_info[] = {
 	},
 };
 #endif /* CONFIG_LEDS_AS364X */
-/*                                                                 */
+/* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 
 #endif
 
@@ -1383,20 +1378,6 @@ void __init lge_add_camera_devices(void)
 		cam_i2c_flash_info,
 		ARRAY_SIZE(cam_i2c_flash_info),
 	};
-/*                                                                                                                 */
-#if 0
-/*                                                                                   */
-//#elif defined (CONFIG_MSM_CAMERA_FLASH_LM3639)
-	struct i2c_registry msm8930_camera_flash_i2c_devices = {
-		I2C_SURF | I2C_FFA | I2C_FLUID,
-		MSM_8930_GSBI4_QUP_I2C_BUS_ID,
-		cam_i2c_flash_info,
-		ARRAY_SIZE(cam_i2c_flash_info),
-	};
-/*                                                                                   */
-#endif
-/*                                                                                                                */
-
 #elif defined (CONFIG_LEDS_AS364X)
 	struct i2c_registry msm8930_camera_flash_i2c_devices = {
 		I2C_SURF | I2C_FFA | I2C_FLUID,
@@ -1406,7 +1387,6 @@ void __init lge_add_camera_devices(void)
 	};
 #endif
 	pr_err("%s: E\n", __func__);
-//	msm8930_init_cam();
 	i2c_register_board_info(msm8930_camera_i2c_devices.bus,
 		msm8930_camera_i2c_devices.info,
 		msm8930_camera_i2c_devices.len);
@@ -1417,24 +1397,13 @@ void __init lge_add_camera_devices(void)
 		msm8930_camera_flash_i2c_devices.len);
 #endif
 
-/*                                                                 */
+/* LGE_CHANGE_S L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 #if defined (CONFIG_MSM_CAMERA_FLASH_LM3559)
 	i2c_register_board_info(msm8930_camera_flash_i2c_devices.bus,
 		msm8930_camera_flash_i2c_devices.info,
 		msm8930_camera_flash_i2c_devices.len);
 #endif
-/*                                                                 */
-/*                                                                                   */
-/*                                                                                                                 */
-#if 0
-#if defined (CONFIG_MSM_CAMERA_FLASH_LM3639)
-	i2c_register_board_info(msm8930_camera_flash_i2c_devices.bus,
-		msm8930_camera_flash_i2c_devices.info,
-		msm8930_camera_flash_i2c_devices.len);
-#endif
-/*                                                                                   */
-#endif
-/*                                                                                                                */
+/* LGE_CHANGE_E L9II Camera bringup 2013-03-11 jinsang.yun@lge.com */
 
 	pr_err("%s: X\n", __func__);
 #endif
